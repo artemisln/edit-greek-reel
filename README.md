@@ -1,6 +1,13 @@
 # Greek Reel Video Editor — Artemis Codes
 
+[![ClawHub](https://img.shields.io/badge/ClawHub-edit--greek--reel-blue)](https://clawhub.ai/artemisln/edit-greek-reel)
+
 A Claude Code custom skill that turns raw talking-head videos into polished Instagram Reels / TikToks with Greek karaoke-style subtitles. No manual editing needed — just point it at your video and go.
+
+**Install instantly via ClawHub:**
+```bash
+clawhub install edit-greek-reel
+```
 
 ## What it does
 
@@ -31,17 +38,21 @@ A Claude Code custom skill that turns raw talking-head videos into polished Inst
 - ffmpeg (`brew install ffmpeg` on macOS)
 - [Manrope font](https://fonts.google.com/specimen/Manrope) installed (Bold weight required)
 
-### Install the skill
+### Option 1: ClawHub (recommended)
 
 ```bash
-# Clone or download this repo
-git clone https://github.com/YOUR_USERNAME/edit-greek-reel-skill.git
+npm i -g clawhub
+clawhub install edit-greek-reel
+```
 
-# Copy to your Claude Code skills directory
+### Option 2: Manual
+
+```bash
+git clone https://github.com/artemisln/edit-greek-reel.git
 cp -r edit-greek-reel ~/.claude/skills/edit-greek-reel
 ```
 
-### Install Python dependencies
+### Python dependencies
 
 ```bash
 pip install openai-whisper Pillow cairosvg

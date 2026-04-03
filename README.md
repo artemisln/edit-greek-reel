@@ -2,7 +2,7 @@
 
 [![ClawHub](https://img.shields.io/badge/ClawHub-edit--greek--reel-blue)](https://clawhub.ai/artemisln/edit-greek-reel)
 
-A Claude Code custom skill that turns raw talking-head videos into polished Instagram Reels / TikToks with Greek karaoke-style subtitles. No manual editing needed — just point it at your video and go.
+A Claude Code custom skill that turns raw talking-head videos into polished Instagram Reels / TikToks with karaoke-style subtitles. Supports any language — just point it at your video and go.
 
 **Install instantly via ClawHub:**
 ```bash
@@ -35,7 +35,7 @@ clawhub install edit-greek-reel
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI installed
 - Python 3.10+
-- ffmpeg (`brew install ffmpeg` on macOS)
+- ffmpeg (`brew install ffmpeg` on macOS, `choco install ffmpeg` on Windows)
 - [Manrope font](https://fonts.google.com/specimen/Manrope) installed (Bold weight required)
 
 ### Option 1: ClawHub (recommended)
@@ -44,6 +44,8 @@ clawhub install edit-greek-reel
 npm i -g clawhub
 clawhub install edit-greek-reel
 ```
+
+> **Note:** ClawHub may not include the bundled SFX audio files. The skill will automatically download them from this repository on first run if they're missing.
 
 ### Option 2: Manual
 
@@ -58,6 +60,8 @@ cp -r edit-greek-reel ~/.claude/skills/edit-greek-reel
 pip install openai-whisper Pillow cairosvg
 ```
 
+> **Note:** The Whisper medium model (~1.5 GB) will be downloaded automatically on first use. This may take a few minutes depending on your connection.
+
 ## Usage
 
 In Claude Code, run:
@@ -69,10 +73,13 @@ In Claude Code, run:
 ### Options
 
 ```
+/edit-greek-reel ~/video.MOV --lang en              # Set language (en, el, es, fr, de, etc.)
 /edit-greek-reel ~/video.MOV --crop-top 20          # Crop 20% from the top
 /edit-greek-reel ~/video.MOV --no-images            # Skip image overlays
 /edit-greek-reel ~/video.MOV --manual-text "..."    # Use your own script text instead of Whisper
 ```
+
+If `--lang` is not specified, the skill will ask which language your video is in before transcribing.
 
 ### Adding custom SFX
 

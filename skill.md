@@ -1,7 +1,7 @@
 ---
 name: edit-greek-reel
-description: Edit a raw talking-head video into a polished short-form reel with Greek karaoke subtitles. Trims silence, adds Manrope Bold subtitles, zoom effects, SFX, and image overlays. Usage - /edit-greek-reel <path-to-video> [options]
-argument-hint: <path-to-video.MOV> [--crop-top 20] [--no-images] [--manual-text "your script here"]
+description: Edit a raw talking-head video into a polished short-form reel with karaoke subtitles. Trims silence, adds Manrope Bold subtitles, zoom effects, SFX, and image overlays. Supports any language. Usage - /edit-greek-reel <path-to-video> [options]
+argument-hint: <path-to-video.MOV> [--lang en] [--crop-top 20] [--no-images] [--manual-text "your script here"]
 ---
 
 # Greek Reel Video Editor — Artemis Codes
@@ -25,20 +25,46 @@ The editing pipeline has 3 passes:
 
 ## Step 2: Transcribe
 
-1. Install `openai-whisper` if needed (`pip3 install openai-whisper`)
-2. Transcribe with Whisper medium model, Greek language, word-level timestamps:
+### 2a. Determine Language
+
+If the user provided `--lang <code>` (e.g., `--lang en`, `--lang el`, `--lang es`), use that language code directly.
+
+Otherwise, **ask the user** which language the video is in before transcribing. Common options:
+- `en` — English
+- `el` — Greek
+- `es` — Spanish
+- `fr` — French
+- `de` — German
+
+The user can also type any [Whisper language code](https://github.com/openai/whisper#available-models-and-languages).
+
+### 2b. Download Whisper Model (if needed)
+
+The Whisper medium model (~1.5 GB) must be downloaded before first use. **Download it as a separate step** before transcribing, so the user can see progress and it doesn't timeout during transcription:
+
 ```python
+import whisper
+print("Downloading Whisper medium model (this may take a few minutes on first run)...")
 model = whisper.load_model("medium")
-result = model.transcribe(audio_path, language="el", word_timestamps=True, condition_on_previous_text=True)
+print("Model ready.")
 ```
-3. Save transcript to `transcript.json` in the same directory
-4. Print the full transcript and word timestamps for review
+
+Run this in a script with a generous timeout (5+ minutes). If the download fails or times out, retry — the download resumes from where it left off.
+
+### 2c. Transcribe
+
+```python
+result = model.transcribe(audio_path, language=LANG_CODE, word_timestamps=True, condition_on_previous_text=True)
+```
+
+Save transcript to `transcript.json` in the same directory. Print the full transcript and word timestamps for review.
 
 ## Step 3: Proofread the Transcription
 
 **CRITICAL**: Whisper makes mistakes, especially with:
-- English tool/brand names (e.g., "Cloud Code" → "Claude Code", "CacheSource" → "Cursor")
-- Greek spelling errors (e.g., "ευτοματά" → "αυτόματα", "φιτιτικού" → "φοιτητικού")
+- Brand/tool names in any language (e.g., "Cloud Code" → "Claude Code", "CacheSource" → "Cursor", "Artemis Coe" → "Artemis Codes")
+- Homophones and near-misses (e.g., "lucky" → "lowkey", "dragon" → "dragging")
+- Spelling errors in the target language
 - Merged or split words
 
 Review the transcript yourself and fix obvious errors. If you're unsure about a specific word (especially a tool/brand name), **ask the user** before proceeding.
@@ -87,7 +113,19 @@ Based on the silence detection and word timestamps:
   - `trimmed_click.mp3` — tool mentions
   - `trimmed_bubble_pop.mp3` — light reveals
   - `trimmed_riser.mp3` — builds, anticipation
-- The skill's base directory is provided at invocation as `Base directory for this skill: <path>`. Use that path to locate the bundled `audios/` folder.
+- **Locating the SFX files** — check these locations in order:
+  1. The skill's base directory `audios/` folder (provided at invocation as `Base directory for this skill: <path>`)
+  2. The video's parent directory for an `audios/` folder (user may have added custom SFX there)
+  3. **If audios/ is missing** (e.g., package managers like ClawHub may not include binary assets): download them from the repository:
+     ```bash
+     REPO_URL="https://raw.githubusercontent.com/artemisln/edit-greek-reel/main/audios"
+     SKILL_DIR="<skill base directory>"
+     mkdir -p "$SKILL_DIR/audios"
+     for f in trimmed_whoosh.mp3 trimmed_cash.mp3 trimmed_fah.mp3 trimmed_click.mp3 trimmed_bubble_pop.mp3 trimmed_riser.mp3; do
+       curl -sL "$REPO_URL/$f" -o "$SKILL_DIR/audios/$f"
+     done
+     ```
+     On Windows, use Python `urllib` instead of `curl`.
 - Also check the video's parent directory for an `audios/` folder — the user may have added custom SFX there
 - If new untrimmed audio files exist, trim leading silence first:
   ```

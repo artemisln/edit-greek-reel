@@ -142,7 +142,7 @@ edit-greek-reel/
 
 ## Credits
 
-Built by [Artemis Codes](https://instagram.com/artemiscodes) using Claude Code.
+Built by [Artemis Codes](https://instagram.com/artemis.codes) using Claude Code.
 
 ## License
 
